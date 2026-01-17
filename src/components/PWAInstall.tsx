@@ -46,13 +46,13 @@ export default function PWAInstall() {
 
     // Show manual install instructions after 4 seconds if beforeinstallprompt hasn't fired
     const timer = setTimeout(() => {
-      console.log('⏱️ 4 seconds elapsed without beforeinstallprompt event');
+      console.log('⏱️ 10 seconds elapsed without beforeinstallprompt event');
       if (!deferredPrompt && !isInstalled) {
         console.log('📋 Showing manual install instructions');
         setShowManualInstall(true);
       }
       setIsLoading(false);
-    }, 4000);
+    }, 10000);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener);

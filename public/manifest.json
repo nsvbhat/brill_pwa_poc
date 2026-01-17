@@ -1,5 +1,5 @@
 {
-  "name": "Ambetter Health",
+  "name": "Ambetter Health PWA",
   "short_name": "Ambetter",
   "description": "Your health, simplified. Access health information 24/7.",
   "start_url": "/",
@@ -9,14 +9,22 @@
   "background_color": "#ffffff",
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "/ambetter-logo.png",
+      "sizes": "80x80",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/ambetter-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/ambetter-logo-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

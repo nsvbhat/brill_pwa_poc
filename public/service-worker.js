@@ -47,65 +47,22 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle API requests separately
-  if (request.url.includes('/api/')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const cache = caches.open(CACHE_NAME);
-            cache.then((c) => c.put(request, response.clone()));
-          }
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request).then((response) => {
-            return response || new Response('Offline: API unavailable', { status: 503 });
-          });
-        })
-    );
-    return;
-  }
-
-  // Handle navigation requests
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, response.clone());
-          });
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request).then((response) => {
-            return response || caches.match('/offline.html');
-          });
-        })
-    );
-    return;
-  }
-
-  // Handle static assets
+  // Network first, fallback to cache
   event.respondWith(
-    caches.match(request).then((response) => {
-      if (response) {
-        return response;
-      }
-      return fetch(request)
-        .then((response) => {
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          const responseToCache = response.clone();
+    fetch(request)
+      .then((response) => {
+        // Cache successful responses
+        if (response && response.status === 200) {
+          const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseToCache);
+            cache.put(request, responseClone);
           });
-          return response;
-        })
-        .catch(() => {
-          return new Response('Offline: Resource unavailable', { status: 503 });
-        });
-    })
+        }
+        return response;
+      })
+      .catch(() => {
+        // Return cached version if network fails
+        return caches.match(request);
+      })
   );
 });

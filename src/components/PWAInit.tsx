@@ -4,25 +4,41 @@ import { useEffect } from 'react';
 
 export default function PWAInit() {
   useEffect(() => {
-    // Register service worker
+    // Register service worker with cache busting query parameter
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
-        .register('/service-worker.js')
+        .register(`/service-worker.js?v=${Date.now()}`)
         .then((registration) => {
           console.log('✅ Service Worker registered:', registration);
           console.log('Service Worker scope:', registration.scope);
           
+          // Check for updates immediately and every 10 seconds
+          const checkUpdates = async () => {
+            try {
+              await registration.update();
+              console.log('🔍 Checked for service worker update');
+            } catch (err) {
+              console.error('Update check failed:', err);
+            }
+          };
+          
+          // Check immediately
+          checkUpdates();
+          
+          // Then check every 10 seconds
+          const updateInterval = setInterval(checkUpdates, 10000);
+          
           // Listen for new service worker ready
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
+            console.log('📦 New service worker installing...');
             
             newWorker?.addEventListener('statechange', () => {
+              console.log('🔔 Service worker state:', newWorker.state);
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New service worker is ready, reload the page silently
-                console.log('🔄 New version detected, reloading...');
-                setTimeout(() => {
-                  window.location.reload();
-                }, 2000); // Wait 2 seconds before reload
+                // New service worker is ready, reload immediately
+                console.log('✨ New version detected! Reloading now...');
+                window.location.reload();
               }
             });
           });
@@ -32,6 +48,8 @@ export default function PWAInit() {
             console.log('Requesting notification permission...');
             Notification.requestPermission().catch(() => {});
           }
+          
+          return () => clearInterval(updateInterval);
         })
         .catch((error) => {
           console.error('❌ Service Worker registration failed:', error);
@@ -39,22 +57,6 @@ export default function PWAInit() {
     } else {
       console.warn('⚠️ Service Worker not supported in this browser');
     }
-
-    // Check for updates periodically
-    const interval = setInterval(async () => {
-      try {
-        if ('serviceWorker' in navigator) {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          registrations.forEach((registration) => {
-            registration.update().catch((err) => console.error('Update check failed:', err));
-          });
-        }
-      } catch (error) {
-        console.error('Error checking for updates:', error);
-      }
-    }, 60000); // Check every minute
-
-    return () => clearInterval(interval);
   }, []);
 
   return null;

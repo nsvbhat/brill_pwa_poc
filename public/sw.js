@@ -6,6 +6,17 @@ self.addEventListener('install', () => {
 
 self.addEventListener('activate', () => {
   console.log('✅ SW activated');
+  
+  // Clear all old caches from previous versions
+  caches.keys().then((cacheNames) => {
+    return Promise.all(
+      cacheNames.map((cacheName) => {
+        console.log('🗑️ Deleting old cache:', cacheName);
+        return caches.delete(cacheName);
+      })
+    );
+  });
+  
   self.clients.claim();
 });
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { APP_VERSION } from '@/lib/version';
 
 interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
   sync?: {
@@ -14,8 +15,7 @@ interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
 export default function PWAInit() {
   useEffect(() => {
     // Log app version on launch
-    const appVersion = 'ambetter-v1.0.7';
-    console.log('🚀 App launched - Version:', appVersion);
+    console.log('🚀 App launched - Version:', APP_VERSION);
     
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker

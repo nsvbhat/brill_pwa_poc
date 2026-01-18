@@ -46,13 +46,13 @@ export default function PWAInstall() {
 
     // Show manual install instructions after 4 seconds if beforeinstallprompt hasn't fired
     const timer = setTimeout(() => {
-      console.log('⏱️ 4 seconds elapsed without beforeinstallprompt event');
+      console.log('⏱️ 10 seconds elapsed without beforeinstallprompt event');
       if (!deferredPrompt && !isInstalled) {
         console.log('📋 Showing manual install instructions');
         setShowManualInstall(true);
       }
       setIsLoading(false);
-    }, 4000);
+    }, 10000);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener);
@@ -95,7 +95,7 @@ export default function PWAInstall() {
     <>
       {/* Browser Install Prompt (Blue Banner) */}
       {showPrompt && deferredPrompt && (
-        <div className="fixed top-0 left-0 right-0 bg-blue-600 text-white p-3 sm:p-4 shadow-lg z-50 animate-slideDown">
+        <div className="fixed bottom-0 left-0 right-0 bg-blue-600 text-white p-3 sm:p-4 shadow-lg z-50 animate-slideUp">
           <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
             <div>
               <p className="font-semibold text-sm sm:text-base">🎉 Install Ambetter Health App</p>
@@ -121,23 +121,23 @@ export default function PWAInstall() {
 
       {/* Manual Install Instructions (Amber Banner) */}
       {showManualInstall && !deferredPrompt && (
-        <div className="fixed top-0 left-0 right-0 bg-amber-500 text-white p-3 sm:p-4 shadow-lg z-50 animate-slideDown">
+        <div className="fixed bottom-0 left-0 right-0 bg-amber-500 text-white p-3 sm:p-4 shadow-lg z-50 animate-slideUp">
           <div className="max-w-6xl mx-auto">
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm sm:text-base mb-1">📱 Install App</p>
-                <div className="text-xs sm:text-sm opacity-95 space-y-1">
+                <p className="font-semibold text-sm sm:text-base mb-2">📱 Install App</p>
+                <div className="text-xs sm:text-sm opacity-95 space-y-1.5">
                   <p>
-                    <strong>🍎 iPhone (Safari):</strong> Tap Share → Add to Home Screen
+                    <strong>🍎 iPhone:</strong> <span className="block sm:inline">Tap Share → Add to Home Screen</span>
                   </p>
                   <p>
-                    <strong>🤖 Android (Chrome):</strong> Tap Menu (⋮) → Install app
+                    <strong>🤖 Android:</strong> <span className="block sm:inline">Tap Menu (⋮) → Install app</span>
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowManualInstall(false)}
-                className="flex-shrink-0 text-xl leading-none hover:opacity-75 transition-opacity"
+                className="flex-shrink-0 text-lg leading-none hover:opacity-75 transition-opacity"
                 aria-label="Close install prompt"
               >
                 ✕

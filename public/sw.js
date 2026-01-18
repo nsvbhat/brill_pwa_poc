@@ -1,24 +1,42 @@
 // Service Worker with Version Control and Cache Busting
-const CACHE_VERSION = 'ambetter-v1.0.0';
+let CACHE_VERSION = 'ambetter-v1.0.0';
+
+// Fetch version from API on install
+const fetchCacheVersion = () => {
+  return fetch('/api/version')
+    .then(res => res.json())
+    .then(data => {
+      CACHE_VERSION = data.version;
+      console.log('📦 Cache version loaded:', CACHE_VERSION);
+      return CACHE_VERSION;
+    })
+    .catch(err => {
+      console.error('⚠️ Failed to fetch cache version:', err);
+      return CACHE_VERSION; // Use fallback
+    });
+};
 
 self.addEventListener('install', () => {
-  console.log('✅ SW installed - version:', CACHE_VERSION);
+  console.log('✅ SW installing...');
   self.skipWaiting();
 });
 
 self.addEventListener('activate', () => {
-  console.log('✅ SW activated - version:', CACHE_VERSION);
+  console.log('✅ SW activated');
   
-  // Delete ALL old cache versions
-  caches.keys().then((cacheNames) => {
-    return Promise.all(
-      cacheNames.map((cacheName) => {
-        if (cacheName !== CACHE_VERSION) {
-          console.log('🗑️ Deleting old cache:', cacheName);
-          return caches.delete(cacheName);
-        }
-      })
-    );
+  // Fetch latest version
+  fetchCacheVersion().then((currentVersion) => {
+    // Delete ALL old cache versions
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== currentVersion) {
+            console.log('🗑️ Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    });
   });
   
   self.clients.claim();

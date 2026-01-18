@@ -31,7 +31,7 @@ export default function PWAInit() {
           setInterval(() => {
             console.log('🔄 Checking for SW update...');
             reg.update();
-          }, 10000);
+          }, 60000);
           
           // Register periodic sync for background updates (every 12 hours)
           if ('periodicSync' in reg && 'PeriodicSyncManager' in window) {

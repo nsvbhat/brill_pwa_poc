@@ -25,10 +25,19 @@ export default function PWAInstall() {
 
     // Check if app is already installed (standalone mode or TWA)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    const isTWA = navigator.userAgent.includes('wv'); // TWA detection
+    // Better TWA detection - PWABuilder wraps apps with WebView indicators
+    const isTWA = navigator.userAgent.includes('wv') || 
+                  navigator.userAgent.includes('Trusted Web Activity') ||
+                  (typeof window !== 'undefined' && (window as any).TrustedWebActivity !== undefined) ||
+                  navigator.userAgent.includes('AndroidApp');
+    
+    console.log('🔍 Install status check:');
+    console.log('  - Standalone mode:', isStandalone);
+    console.log('  - TWA detected:', isTWA);
+    console.log('  - User Agent:', navigator.userAgent);
     
     if (isStandalone || isTWA) {
-      console.log('✅ App is already installed (standalone or TWA mode)');
+      console.log('✅ App is already installed (standalone or TWA mode) - hiding banners');
       setIsInstalled(true);
       setIsLoading(false);
       return;

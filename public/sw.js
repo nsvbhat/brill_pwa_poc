@@ -1,20 +1,25 @@
 // Ultra-minimal Service Worker
+const CACHE_VERSION = 'v' + new Date().getTime();
+
 self.addEventListener('install', () => {
-  console.log('✅ SW installed');
+  console.log('✅ SW installed - version:', CACHE_VERSION);
   self.skipWaiting();
 });
 
 self.addEventListener('activate', () => {
-  console.log('✅ SW activated');
+  console.log('✅ SW activated - version:', CACHE_VERSION);
   
-  // Clear all old caches from previous versions
+  // Aggressively delete ALL caches
   caches.keys().then((cacheNames) => {
+    console.log('Found caches:', cacheNames);
     return Promise.all(
       cacheNames.map((cacheName) => {
-        console.log('🗑️ Deleting old cache:', cacheName);
+        console.log('🗑️ Deleting cache:', cacheName);
         return caches.delete(cacheName);
       })
     );
+  }).then(() => {
+    console.log('✅ All caches cleared');
   });
   
   self.clients.claim();

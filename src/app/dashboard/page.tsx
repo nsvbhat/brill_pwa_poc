@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
+import { APP_VERSION } from '@/lib/version';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -34,6 +35,11 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
+
+      {/* Version Badge */}
+      <div className="fixed top-16 right-4 bg-pink-600 text-white text-xs sm:text-sm px-3 py-1.5 rounded-full font-semibold shadow-lg z-40">
+        v{APP_VERSION.split('-')[1]}
+      </div>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
         {/* Welcome Section */}

@@ -1,5 +1,5 @@
-// Ultra-minimal Service Worker
-const CACHE_VERSION = 'v' + new Date().getTime();
+// Service Worker with Version Control and Cache Busting
+const CACHE_VERSION = 'ambetter-v1.0.0';
 
 self.addEventListener('install', () => {
   console.log('✅ SW installed - version:', CACHE_VERSION);
@@ -9,25 +9,39 @@ self.addEventListener('install', () => {
 self.addEventListener('activate', () => {
   console.log('✅ SW activated - version:', CACHE_VERSION);
   
-  // Aggressively delete ALL caches
+  // Delete ALL old cache versions
   caches.keys().then((cacheNames) => {
-    console.log('Found caches:', cacheNames);
     return Promise.all(
       cacheNames.map((cacheName) => {
-        console.log('🗑️ Deleting cache:', cacheName);
-        return caches.delete(cacheName);
+        if (cacheName !== CACHE_VERSION) {
+          console.log('🗑️ Deleting old cache:', cacheName);
+          return caches.delete(cacheName);
+        }
       })
     );
-  }).then(() => {
-    console.log('✅ All caches cleared');
   });
   
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network only - no caching, no cloning
+  // Network first strategy with cache fallback
   if (event.request.method !== 'GET') return;
+  
+  // For HTML files, always check network first (no cache)
+  if (event.request.mode === 'navigate' || event.request.url.includes('.html')) {
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // Fallback if offline - serve from cache
+        return caches.open(CACHE_VERSION).then((cache) => {
+          return cache.match(event.request);
+        });
+      })
+    );
+    return;
+  }
+  
+  // For other requests, network only
   event.respondWith(fetch(event.request));
 });
 

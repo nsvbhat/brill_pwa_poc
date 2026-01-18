@@ -80,14 +80,33 @@ export default function PWAInit() {
             });
           }
           
-          // Listen for updates
+          // Check for updates every 5 seconds (aggressive update check for APK)
+          const updateInterval = setInterval(() => {
+            console.log('🔄 Checking for SW update...');
+            reg.update().catch((err) => {
+              console.error('❌ Update check failed:', err);
+            });
+          }, 5000);
+          
+          // Listen for updates - reload immediately when new version ready
           reg.addEventListener('updatefound', () => {
             console.log('📦 Update found!');
             const newSW = reg.installing;
+            
             newSW?.addEventListener('statechange', () => {
               if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('🎉 New SW ready - reloading page');
-                window.location.reload();
+                // New service worker is ready
+                console.log('🎉 New SW ready - auto-reloading page');
+                
+                // Clear all caches to ensure fresh content
+                caches.keys().then((cacheNames) => {
+                  Promise.all(cacheNames.map(name => caches.delete(name)));
+                });
+                
+                // Force reload to get new content immediately
+                setTimeout(() => {
+                  window.location.reload();
+                }, 500);
               }
             });
           });

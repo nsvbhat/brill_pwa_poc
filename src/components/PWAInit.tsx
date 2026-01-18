@@ -13,6 +13,10 @@ interface ExtendedServiceWorkerRegistration extends ServiceWorkerRegistration {
 
 export default function PWAInit() {
   useEffect(() => {
+    // Log app version on launch
+    const appVersion = 'ambetter-v1.0.7';
+    console.log('🚀 App launched - Version:', appVersion);
+    
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')

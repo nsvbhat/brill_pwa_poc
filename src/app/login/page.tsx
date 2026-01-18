@@ -38,6 +38,15 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-600 to-pink-700 flex items-center justify-center px-4 py-8">
+      {/* Home Button */}
+      <Link 
+        href="/"
+        className="fixed top-4 left-4 bg-white/20 hover:bg-white/30 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium transition-all text-xs sm:text-sm flex items-center gap-2 backdrop-blur-sm"
+      >
+        <span>🏠</span>
+        <span className="hidden sm:inline">Home</span>
+      </Link>
+
       <div className="w-full max-w-md">
         {/* Logo Section */}
         <div className="text-center mb-8">

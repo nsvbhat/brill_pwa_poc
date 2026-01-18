@@ -6,8 +6,20 @@
   "start_url": "/",
   "scope": "/",
   "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "portrait-primary",
   "theme_color": "#ec4899",
   "background_color": "#ffffff",
+  "prefer_related_applications": false,
+  "categories": ["health", "medical"],
+  "screenshots": [
+    {
+      "src": "/ambetter-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
   "icons": [
     {
       "src": "/ambetter-logo.png",

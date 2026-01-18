@@ -61,6 +61,12 @@ export async function GET() {
           'Mental health services',
         ],
       },
+      // {
+      //   id: 'q4',
+      //   question: 'Do you have any preferred doctors or hospitals?',
+      //   type: 'text',
+      //   options: [],
+      // },
     ],
     lastUpdated: new Date().toISOString(),
   });

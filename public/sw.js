@@ -1,6 +1,6 @@
 // Service Worker with Version Control and Cache Busting
 // UPDATE THIS VERSION STRING TO TRIGGER CACHE BUST ON NEW DEPLOYMENTS
-const CACHE_VERSION = 'ambetter-v1.0.5';
+const CACHE_VERSION = 'ambetter-v1.0.6';
 
 self.addEventListener('install', () => {
   console.log('✅ SW installing - version:', CACHE_VERSION);

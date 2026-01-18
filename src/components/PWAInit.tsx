@@ -27,11 +27,11 @@ export default function PWAInit() {
             console.log('⚠️ Initial update check failed:', err);
           });
           
-          // Then check for updates every 10 seconds
+          // Then check for updates every 10 minutes
           setInterval(() => {
             console.log('🔄 Checking for SW update...');
             reg.update();
-          }, 60000);
+          }, 600000);
           
           // Register periodic sync for background updates (every 12 hours)
           if ('periodicSync' in reg && 'PeriodicSyncManager' in window) {
@@ -87,14 +87,6 @@ export default function PWAInit() {
               }
             });
           }
-          
-          // Check for updates every 5 seconds (aggressive update check for APK)
-          const updateInterval = setInterval(() => {
-            console.log('🔄 Checking for SW update...');
-            reg.update().catch((err) => {
-              console.error('❌ Update check failed:', err);
-            });
-          }, 60000);
           
           // Listen for updates - reload immediately when new version ready
           reg.addEventListener('updatefound', () => {

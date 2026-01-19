@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { isBiometricSupported, authenticateWithBiometric } from '@/lib/biometric-utils';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,6 +12,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricLoading, setBiometricLoading] = useState(false);
+  const [demoEmail] = useState('john.doe@example.com');
+
+  useEffect(() => {
+    const checkBiometric = async () => {
+      const supported = await isBiometricSupported();
+      setBiometricAvailable(supported);
+      // Auto-fill demo email
+      setEmail(demoEmail);
+    };
+    checkBiometric();
+  }, [demoEmail]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +47,33 @@ export default function LoginPage() {
       setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBiometricLogin = async () => {
+    setBiometricLoading(true);
+    setError('');
+
+    try {
+      console.log('🔐 Initiating biometric authentication...');
+      const success = await authenticateWithBiometric(demoEmail);
+
+      if (success) {
+        // Store in localStorage
+        localStorage.setItem('authToken', 'biometric-token-' + Date.now());
+        localStorage.setItem('userEmail', demoEmail);
+        
+        console.log('✅ Biometric login successful');
+        // Redirect to dashboard
+        router.push('/dashboard');
+      } else {
+        setError('Biometric authentication failed. Please try again or use password login.');
+      }
+    } catch (err) {
+      console.error('Biometric login error:', err);
+      setError('Biometric authentication unavailable. Please use password login.');
+    } finally {
+      setBiometricLoading(false);
     }
   };
 
@@ -74,6 +115,41 @@ export default function LoginPage() {
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-700 text-xs sm:text-sm">{error}</p>
             </div>
+          )}
+
+          {/* Biometric Login Option */}
+          {biometricAvailable && (
+            <>
+              <button
+                type="button"
+                onClick={handleBiometricLogin}
+                disabled={biometricLoading}
+                className="w-full mb-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 sm:py-3.5 rounded-lg transition-all flex items-center justify-center gap-2 text-xs sm:text-sm"
+              >
+                {biometricLoading ? (
+                  <>
+                    <span>⏳</span>
+                    <span>Scanning...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>👆</span>
+                    <span>Sign In with Fingerprint / Face</span>
+                  </>
+                )}
+              </button>
+
+              <div className="mb-6 text-center">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">Or</span>
+                  </div>
+                </div>
+              </div>
+            </>
           )}
 
           {/* Login Form */}

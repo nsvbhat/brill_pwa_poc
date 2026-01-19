@@ -51,24 +51,52 @@ export default function DashboardPage() {
 
         {/* Quick Actions Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
+          {/* View ID Card */}
+          <Link
+            href="/id-card"
+            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-pink-600"
+          >
+            <div className="text-3xl sm:text-4xl mb-3">📇</div>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+              ID Card
+            </h3>
+            <p className="text-gray-600 text-xs sm:text-sm">
+              View & download your card
+            </p>
+          </Link>
+
+          {/* Find Care */}
+          <Link
+            href="/find-care"
+            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-blue-600"
+          >
+            <div className="text-3xl sm:text-4xl mb-3">🏥</div>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+              Find Care
+            </h3>
+            <p className="text-gray-600 text-xs sm:text-sm">
+              Search doctors & facilities
+            </p>
+          </Link>
+
           {/* View Health Info */}
           <Link
             href="/health-info"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer"
+            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-green-600"
           >
             <div className="text-3xl sm:text-4xl mb-3">📋</div>
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
               Health Information
             </h3>
             <p className="text-gray-600 text-xs sm:text-sm">
-              Access your health records 24/7
+              Access your health records
             </p>
           </Link>
 
           {/* Check Prescription */}
           <Link
             href="/prescriptions"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer"
+            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-purple-600"
           >
             <div className="text-3xl sm:text-4xl mb-3">💊</div>
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
@@ -82,7 +110,7 @@ export default function DashboardPage() {
           {/* Pay Premium */}
           <Link
             href="/payments"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer"
+            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-orange-600"
           >
             <div className="text-3xl sm:text-4xl mb-3">💳</div>
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
@@ -96,7 +124,7 @@ export default function DashboardPage() {
           {/* Enrollment */}
           <Link
             href="/enrollment"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer"
+            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-yellow-600"
           >
             <div className="text-3xl sm:text-4xl mb-3">📝</div>
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
@@ -106,6 +134,34 @@ export default function DashboardPage() {
               Talk to licensed agents
             </p>
           </Link>
+
+          {/* Support/FAQ */}
+          <Link
+            href="/support"
+            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-red-600"
+          >
+            <div className="text-3xl sm:text-4xl mb-3">❓</div>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+              Support
+            </h3>
+            <p className="text-gray-600 text-xs sm:text-sm">
+              FAQs & contact us
+            </p>
+          </Link>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-gray-600 hover:bg-gray-50"
+          >
+            <div className="text-3xl sm:text-4xl mb-3">🚪</div>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+              Sign Out
+            </h3>
+            <p className="text-gray-600 text-xs sm:text-sm">
+              Securely logout
+            </p>
+          </button>
         </div>
 
         {/* Coming Soon Features */}

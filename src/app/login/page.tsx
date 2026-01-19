@@ -3,7 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { isBiometricSupported, authenticateWithBiometric } from '@/lib/biometric-utils';
+import { 
+  isBiometricSupported, 
+  authenticateWithBiometric,
+  registerBiometric,
+  hasBiometricCredentials,
+  detectBiometricType
+} from '@/lib/biometric-utils';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,13 +20,23 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [biometricLoading, setBiometricLoading] = useState(false);
+  const [biometricType, setBiometricType] = useState('Biometric');
   const [demoEmail] = useState('john.doe@example.com');
+  const [showBiometricSetup, setShowBiometricSetup] = useState(false);
+  const [biometricRegistered, setBiometricRegistered] = useState(false);
 
   useEffect(() => {
     const checkBiometric = async () => {
       const supported = await isBiometricSupported();
       setBiometricAvailable(supported);
-      // Auto-fill demo email
+      
+      if (supported) {
+        const type = await detectBiometricType();
+        setBiometricType(type);
+        const registered = hasBiometricCredentials(demoEmail);
+        setBiometricRegistered(registered);
+      }
+      
       setEmail(demoEmail);
     };
     checkBiometric();
@@ -32,13 +48,9 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Simulate API call
       if (email && password.length >= 6) {
-        // Store in localStorage (simple demo auth)
         localStorage.setItem('authToken', 'demo-token-' + Date.now());
         localStorage.setItem('userEmail', email);
-        
-        // Redirect to dashboard
         router.push('/dashboard');
       } else {
         setError('Please enter valid email and password (min 6 characters)');
@@ -55,23 +67,40 @@ export default function LoginPage() {
     setError('');
 
     try {
-      console.log('🔐 Initiating biometric authentication...');
       const success = await authenticateWithBiometric(demoEmail);
-
       if (success) {
-        // Store in localStorage
         localStorage.setItem('authToken', 'biometric-token-' + Date.now());
         localStorage.setItem('userEmail', demoEmail);
-        
-        console.log('✅ Biometric login successful');
-        // Redirect to dashboard
         router.push('/dashboard');
       } else {
-        setError('Biometric authentication failed. Please try again or use password login.');
+        setError('Biometric authentication failed. Please try password login.');
       }
     } catch (err) {
-      console.error('Biometric login error:', err);
-      setError('Biometric authentication unavailable. Please use password login.');
+      setError('Biometric unavailable. Please use password login.');
+    } finally {
+      setBiometricLoading(false);
+    }
+  };
+
+  const handleBiometricRegister = async () => {
+    setBiometricLoading(true);
+    setError('');
+
+    try {
+      const success = await registerBiometric(demoEmail, demoEmail);
+      if (success) {
+        setBiometricRegistered(true);
+        setShowBiometricSetup(false);
+        localStorage.setItem('authToken', 'biometric-token-' + Date.now());
+        localStorage.setItem('userEmail', demoEmail);
+        setTimeout(() => router.push('/dashboard'), 1000);
+      } else {
+        setError('Registration cancelled. Use password login instead.');
+        setShowBiometricSetup(false);
+      }
+    } catch (err) {
+      setError('Registration failed. Please use password login.');
+      setShowBiometricSetup(false);
     } finally {
       setBiometricLoading(false);
     }
@@ -79,7 +108,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-600 to-pink-700 flex items-center justify-center px-4 py-8">
-      {/* Home Button */}
       <Link 
         href="/"
         className="fixed top-4 left-4 bg-white/20 hover:bg-white/30 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium transition-all text-xs sm:text-sm flex items-center gap-2 backdrop-blur-sm"
@@ -89,76 +117,140 @@ export default function LoginPage() {
       </Link>
 
       <div className="w-full max-w-md">
-        {/* Logo Section */}
         <div className="text-center mb-8">
           <div className="bg-white rounded-lg p-3 inline-block mb-4">
-            <img 
-              src="/ambetter-logo.png"
-              alt="Ambetter Health" 
-              className="h-16 w-auto"
-            />
+            <img src="/ambetter-logo.png" alt="Ambetter Health" className="h-16 w-auto" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
-            Ambetter Health
-          </h1>
-          <p className="text-pink-100 text-sm sm:text-base">
-            Affordable Health Coverage
-          </p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Ambetter Health</h1>
+          <p className="text-pink-100 text-sm sm:text-base">Affordable Health Coverage</p>
         </div>
 
-        {/* Login Card */}
         <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8">
           <h2 className="text-2xl font-bold text-pink-600 mb-6">Sign In</h2>
 
-          {/* Error Message */}
           {error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-700 text-xs sm:text-sm">{error}</p>
             </div>
           )}
 
-          {/* Biometric Login Option */}
-          {biometricAvailable && (
+          {biometricAvailable && !showBiometricSetup && (
             <>
-              <button
-                type="button"
-                onClick={handleBiometricLogin}
-                disabled={biometricLoading}
-                className="w-full mb-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 sm:py-3.5 rounded-lg transition-all flex items-center justify-center gap-2 text-xs sm:text-sm"
-              >
-                {biometricLoading ? (
-                  <>
-                    <span>⏳</span>
-                    <span>Scanning...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>👆</span>
-                    <span>Sign In with Fingerprint / Face</span>
-                  </>
-                )}
-              </button>
+              {biometricRegistered ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleBiometricLogin}
+                    disabled={biometricLoading}
+                    className="w-full mb-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-3 sm:py-3.5 rounded-lg transition-all flex items-center justify-center gap-2 text-xs sm:text-sm"
+                  >
+                    {biometricLoading ? (
+                      <>
+                        <span>⏳</span>
+                        <span>Scanning...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>👆</span>
+                        <span>Sign In with {biometricType}</span>
+                      </>
+                    )}
+                  </button>
 
-              <div className="mb-6 text-center">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
+                  <div className="mb-6 text-center">
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-white text-gray-500">Or</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">Or</span>
+                </>
+              ) : (
+                <>
+                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-xs sm:text-sm text-blue-800 font-medium mb-2">🔒 First Time?</p>
+                    <p className="text-xs text-blue-700 mb-3">Set up {biometricType} for faster, more secure login.</p>
+                    <button
+                      type="button"
+                      onClick={() => setShowBiometricSetup(true)}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors text-xs sm:text-sm"
+                    >
+                      Set Up {biometricType}
+                    </button>
                   </div>
-                </div>
-              </div>
+
+                  <div className="mb-6 text-center">
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-white text-gray-500">Or</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </>
           )}
 
-          {/* Login Form */}
+          {biometricAvailable && showBiometricSetup && (
+            <div className="mb-6 p-4 sm:p-5 bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-300 rounded-lg">
+              <h3 className="font-bold text-gray-900 text-sm sm:text-base mb-2">Set Up {biometricType}</h3>
+              <p className="text-xs sm:text-sm text-gray-700 mb-4">We'll guide you through a quick setup. Authenticate with your {biometricType.toLowerCase()} to confirm.</p>
+
+              <div className="space-y-3 mb-4">
+                <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                  <span className="text-base">✅</span>
+                  <span>Your biometric data stays on your device - never sent to servers</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                  <span className="text-base">✅</span>
+                  <span>Use {biometricType.toLowerCase()} to login on your next visit</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                  <span className="text-base">✅</span>
+                  <span>You can disable it anytime from settings</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowBiometricSetup(false)}
+                  disabled={biometricLoading}
+                  className="bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 text-gray-800 font-medium py-2 rounded-lg transition-colors text-xs sm:text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBiometricRegister}
+                  disabled={biometricLoading}
+                  className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white font-medium py-2 rounded-lg transition-colors text-xs sm:text-sm flex items-center justify-center gap-2"
+                >
+                  {biometricLoading ? (
+                    <>
+                      <span>⏳</span>
+                      <span>Setting up...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>👆</span>
+                      <span>Set Up Now</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
-            {/* Email */}
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-pink-600 mb-1">
-                Email Address
-              </label>
+              <label className="block text-xs sm:text-sm font-medium text-pink-600 mb-1">Email Address</label>
               <input
                 type="email"
                 value={email}
@@ -169,11 +261,8 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Password */}
             <div>
-              <label className="block text-xs sm:text-sm font-medium text-pink-600 mb-1">
-                Password
-              </label>
+              <label className="block text-xs sm:text-sm font-medium text-pink-600 mb-1">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -193,19 +282,11 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Remember Me */}
             <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="remember"
-                className="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-              />
-              <label htmlFor="remember" className="ml-2 text-xs sm:text-sm text-gray-600">
-                Remember me
-              </label>
+              <input type="checkbox" id="remember" className="w-4 h-4 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" />
+              <label htmlFor="remember" className="ml-2 text-xs sm:text-sm text-gray-600">Remember me</label>
             </div>
 
-            {/* Login Button */}
             <button
               type="submit"
               disabled={loading}
@@ -215,29 +296,22 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo Info */}
           <div className="mt-6 p-4 bg-pink-50 border border-pink-200 rounded-lg">
             <p className="text-xs sm:text-sm text-pink-600 font-medium mb-2">Demo Login:</p>
             <p className="text-xs text-pink-600">Any email + password (min 6 chars)</p>
           </div>
 
-          {/* Footer Links */}
           <div className="mt-6 text-center space-y-2">
             <div>
-              <a href="#" className="text-pink-600 hover:text-pink-700 text-xs sm:text-sm font-medium">
-                Forgot password?
-              </a>
+              <a href="#" className="text-pink-600 hover:text-pink-700 text-xs sm:text-sm font-medium">Forgot password?</a>
             </div>
             <div className="text-xs sm:text-sm text-gray-600">
               Don't have an account?{' '}
-              <a href="#" className="text-pink-600 hover:text-pink-700 font-medium">
-                Sign up
-              </a>
+              <a href="#" className="text-pink-600 hover:text-pink-700 font-medium">Sign up</a>
             </div>
           </div>
         </div>
 
-        {/* Additional Info */}
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="text-center">
             <div className="text-2xl mb-2">🔒</div>

@@ -47,48 +47,46 @@ export async function downloadFile(
 
 /**
  * Capture image from camera
- * NOTE: Use CameraModal component in UI for user interaction
- * This is kept for backwards compatibility but not recommended
  */
-export async function captureFromCamera(): Promise<Blob | null> {
-  try {
-    // Check if device has Camera API
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error('Camera not supported on this device');
-    }
+// export async function captureFromCamera(): Promise<Blob | null> {
+//   try {
+//     // Check if device has Camera API
+//     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+//       throw new Error('Camera not supported on this device');
+//     }
 
-    // Request camera permission
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' },
-      audio: false,
-    });
+//     // Request camera permission
+//     const stream = await navigator.mediaDevices.getUserMedia({
+//       video: { facingMode: 'environment' },
+//       audio: false,
+//     });
 
-    return new Promise((resolve) => {
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      video.onloadedmetadata = () => {
-        video.play();
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
+//     return new Promise((resolve) => {
+//       const video = document.createElement('video');
+//       video.srcObject = stream;
+//       video.onloadedmetadata = () => {
+//         video.play();
+//         const canvas = document.createElement('canvas');
+//         canvas.width = video.videoWidth;
+//         canvas.height = video.videoHeight;
+//         const ctx = canvas.getContext('2d');
         
-        if (ctx) {
-          ctx.drawImage(video, 0, 0);
-          stream.getTracks().forEach((track) => track.stop());
+//         if (ctx) {
+//           ctx.drawImage(video, 0, 0);
+//           stream.getTracks().forEach((track) => track.stop());
           
-          canvas.toBlob((blob) => {
-            console.log('✅ Photo captured from camera');
-            resolve(blob);
-          }, 'image/jpeg', 0.95);
-        }
-      };
-    });
-  } catch (error) {
-    console.error('❌ Camera capture failed:', error);
-    return null;
-  }
-}
+//           canvas.toBlob((blob) => {
+//             console.log('✅ Photo captured from camera');
+//             resolve(blob);
+//           }, 'image/jpeg', 0.95);
+//         }
+//       };
+//     });
+//   } catch (error) {
+//     console.error('❌ Camera capture failed:', error);
+//     return null;
+//   }
+// }
 
 /**
  * Generate a sample ID Card PDF/Image for download demo

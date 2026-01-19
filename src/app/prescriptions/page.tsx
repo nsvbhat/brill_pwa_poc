@@ -1,13 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navigation from '@/components/Navigation';
+import { downloadFile, captureFromCamera, getFileExtension } from '@/lib/pwa-utils';
 
 export default function PrescriptionsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+  const [cameraSupported, setCameraSupported] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -16,9 +21,88 @@ export default function PrescriptionsPage() {
       return;
     }
     setLoading(false);
+    
+    // Check if camera is supported
+    const hasCamera = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    setCameraSupported(hasCamera);
   }, [router]);
 
   if (loading) return <div className="min-h-screen bg-gray-50" />;
+
+  const handleDownloadPrescription = async () => {
+    try {
+      // Create a sample prescription PDF content
+      const pdfContent = `
+AMBETTER HEALTH - PRESCRIPTION
+==============================
+
+Patient: John Doe
+Date: ${new Date().toLocaleDateString()}
+
+Prescriptions:
+1. Lisinopril 10mg
+   Qty: 30 tablets
+   Refills: 3
+   
+2. Metformin 500mg
+   Qty: 60 tablets
+   Refills: 5
+
+This is a sample prescription document.
+Please contact your pharmacy to refill.
+      `;
+
+      await downloadFile('Ambetter-Prescriptions.txt', pdfContent, 'text/plain');
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Failed to download prescription');
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      // Simulate upload (in real app, send to server)
+      console.log('📤 Uploading file:', file.name, file.size, 'bytes');
+      
+      // Simulate network delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      
+      setUploadedFile(`${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+      console.log('✅ File uploaded successfully');
+      alert(`✅ Prescription uploaded: ${file.name}`);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Failed to upload prescription');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleCameraCapture = async () => {
+    setUploading(true);
+    try {
+      console.log('📸 Opening camera...');
+      const blob = await captureFromCamera();
+      
+      if (blob) {
+        setUploadedFile(`Camera-Capture-${Date.now()}.jpg (${(blob.size / 1024).toFixed(2)} KB)`);
+        console.log('✅ Photo captured and uploaded');
+        alert('✅ Prescription photo captured and uploaded');
+      } else {
+        alert('Failed to capture photo');
+      }
+    } catch (error) {
+      console.error('Camera capture failed:', error);
+      alert('Camera not available or permission denied');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -128,7 +212,7 @@ export default function PrescriptionsPage() {
         </div>
 
         {/* Pharmacy Locator */}
-        <div className="bg-pink-50 border border-pink-200 rounded-lg p-4 sm:p-6">
+        <div className="bg-pink-50 border border-pink-200 rounded-lg p-4 sm:p-6 mb-8 sm:mb-12">
           <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">🏪 Find a Network Pharmacy</h3>
           <p className="text-xs sm:text-sm text-gray-700 mb-4">
             Search our network of thousands of pharmacies to fill your prescriptions.
@@ -142,6 +226,82 @@ export default function PrescriptionsPage() {
             <button className="bg-pink-600 hover:bg-pink-700 text-white px-4 sm:px-6 py-2 rounded-lg font-medium text-xs sm:text-sm transition-colors">
               Search
             </button>
+          </div>
+        </div>
+
+        {/* Download & Upload Section */}
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2">📄 Prescription Documents</h3>
+          <p className="text-xs sm:text-sm text-gray-700 mb-4 sm:mb-6">
+            Download your prescriptions or upload new ones from your device or camera.
+          </p>
+
+          {/* Download Button */}
+          <div className="mb-4 sm:mb-6 p-4 sm:p-5 bg-white rounded-lg border-2 border-dashed border-purple-300">
+            <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">⬇️ Download Prescriptions</h4>
+            <button
+              onClick={handleDownloadPrescription}
+              className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-4 sm:px-6 py-2 rounded-lg font-medium text-xs sm:text-sm transition-colors flex items-center justify-center gap-2"
+            >
+              📥 Download as Text
+            </button>
+            <p className="text-xs text-purple-600 mt-2">
+              Download your current prescriptions to your device
+            </p>
+          </div>
+
+          {/* Upload Section */}
+          <div className="p-4 sm:p-5 bg-white rounded-lg border-2 border-dashed border-blue-300">
+            <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-3">⬆️ Upload New Prescription</h4>
+            
+            <div className="space-y-3">
+              {/* File Upload */}
+              <div>
+                <label className="text-xs sm:text-sm text-gray-700 font-medium block mb-2">
+                  From Device Storage
+                </label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                  onChange={handleFileUpload}
+                  disabled={uploading}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 sm:px-6 py-2 rounded-lg font-medium text-xs sm:text-sm transition-colors flex items-center justify-center gap-2"
+                >
+                  {uploading ? '⏳ Uploading...' : '📁 Choose File'}
+                </button>
+              </div>
+
+              {/* Camera Capture */}
+              {cameraSupported && (
+                <div>
+                  <label className="text-xs sm:text-sm text-gray-700 font-medium block mb-2">
+                    From Camera
+                  </label>
+                  <button
+                    onClick={handleCameraCapture}
+                    disabled={uploading}
+                    className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 sm:px-6 py-2 rounded-lg font-medium text-xs sm:text-sm transition-colors flex items-center justify-center gap-2"
+                  >
+                    {uploading ? '⏳ Capturing...' : '📷 Take Photo'}
+                  </button>
+                </div>
+              )}
+
+              {/* Upload Status */}
+              {uploadedFile && (
+                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-xs sm:text-sm text-green-800">
+                    ✅ <strong>Uploaded:</strong> {uploadedFile}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

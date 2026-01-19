@@ -258,7 +258,7 @@ Please contact your pharmacy to refill.
               {/* File Upload */}
               <div>
                 <label className="text-xs sm:text-sm text-gray-700 font-medium block mb-2">
-                  From Device Storage
+                  Upload Prescription
                 </label>
                 <input
                   ref={fileInputRef}

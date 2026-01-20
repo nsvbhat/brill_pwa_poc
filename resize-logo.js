@@ -1,7 +1,7 @@
 const sharp = require('sharp');
 const path = require('path');
 
-const inputPath = path.join(__dirname, 'public/ambetter-logo-new.png');
+const inputPath = path.join(__dirname, 'public/ambetter-logo.png');
 
 Promise.all([
   sharp(inputPath).resize(192, 192, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 1 } }).png().toFile(path.join(__dirname, 'public/ambetter-logo-192.png')),

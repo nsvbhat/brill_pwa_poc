@@ -36,7 +36,7 @@ export default function Navigation() {
           {/* Logo */}
           <Link href={isLoggedIn ? '/dashboard' : '/'} className="flex items-center gap-2 sm:gap-3">
             <img 
-              src="/ambetter-logo-new.png"
+              src="/ambetter-logo.png"
               alt="Ambetter Health" 
               className="h-8 sm:h-10 w-auto"
             />

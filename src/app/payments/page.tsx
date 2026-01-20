@@ -75,7 +75,7 @@ export default function PaymentsPage() {
                   <p className="text-xs text-gray-600 mt-1">Checking ending in 4321</p>
                   <p className="text-xs text-gray-500 mt-1">✓ Auto-pay enabled (1st of each month)</p>
                 </div>
-                <button className="text-[#00d4ff] hover:text-pink-700 text-xs sm:text-sm font-medium">
+                <button className="text-[#00d4ff] hover:text-blue-900 text-xs sm:text-sm font-medium">
                   Change
                 </button>
               </div>
@@ -89,7 +89,7 @@ export default function PaymentsPage() {
                   <p className="text-xs text-gray-600 mt-1">Visa ending in 9876</p>
                   <p className="text-xs text-gray-500 mt-1">Expires 12/2027</p>
                 </div>
-                <button className="text-[#00d4ff] hover:text-pink-700 text-xs sm:text-sm font-medium">
+                <button className="text-[#00d4ff] hover:text-blue-900 text-xs sm:text-sm font-medium">
                   Use This
                 </button>
               </div>
@@ -154,7 +154,7 @@ export default function PaymentsPage() {
         </div>
 
         {/* Auto-Pay Settings */}
-        <div className="bg-pink-50 border border-pink-200 rounded-lg p-4 sm:p-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
           <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">⚙️ Auto-Pay Settings</h3>
           <p className="text-xs sm:text-sm text-pink-900 mb-4">
             Your premium is automatically deducted from your bank account on the 1st of each month. No action needed!
@@ -165,7 +165,7 @@ export default function PaymentsPage() {
               <p className="text-xs text-gray-600">Bank Account ending in 4321</p>
             </div>
             <div className="flex gap-2">
-              <button className="text-[#00d4ff] hover:text-pink-700 text-xs sm:text-sm font-medium">
+              <button className="text-[#00d4ff] hover:text-blue-900 text-xs sm:text-sm font-medium">
                 Modify
               </button>
               <button className="text-red-600 hover:text-red-700 text-xs sm:text-sm font-medium">

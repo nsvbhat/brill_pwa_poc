@@ -212,7 +212,7 @@ Please contact your pharmacy to refill.
         </div>
 
         {/* Pharmacy Locator */}
-        <div className="bg-pink-50 border border-pink-200 rounded-lg p-4 sm:p-6 mb-8 sm:mb-12">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-8 sm:mb-12">
           <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">🏪 Find a Network Pharmacy</h3>
           <p className="text-xs sm:text-sm text-gray-700 mb-4">
             Search our network of thousands of pharmacies to fill your prescriptions.

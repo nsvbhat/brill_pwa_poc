@@ -250,7 +250,7 @@ export default function SupportPage() {
         </div>
 
         {/* Contact Support Section */}
-        <div className="bg-gradient-to-r from-pink-50 to-blue-50 border border-pink-200 rounded-lg p-4 sm:p-6 lg:p-8 mb-8">
+        <div className="bg-gradient-to-r from-pink-50 to-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 lg:p-8 mb-8">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
             Still Have Questions?
           </h2>

@@ -188,7 +188,7 @@ Generated: ${new Date().toLocaleString()}
           {/* Card Back - Click to Flip */}
           <button
             onClick={() => setShowBack(!showBack)}
-            className="w-full p-4 sm:p-6 bg-gradient-to-r from-pink-50 to-pink-100 border-t border-pink-200 hover:bg-gradient-to-r hover:from-pink-100 hover:to-pink-200 transition-all"
+            className="w-full p-4 sm:p-6 bg-gradient-to-r from-pink-50 to-pink-100 border-t border-blue-200 hover:bg-gradient-to-r hover:from-pink-100 hover:to-pink-200 transition-all"
           >
             <p className="text-[#00d4ff] font-semibold text-sm sm:text-base">
               {showBack ? '👈 Show Front' : '👉 Show Important Information'}
@@ -342,7 +342,7 @@ Generated: ${new Date().toLocaleString()}
 
           <Link
             href="/prescriptions"
-            className="bg-gradient-to-r from-pink-50 to-orange-50 border border-pink-200 rounded-lg p-4 sm:p-6 hover:shadow-lg transition-shadow text-center group"
+            className="bg-gradient-to-r from-pink-50 to-orange-50 border border-blue-200 rounded-lg p-4 sm:p-6 hover:shadow-lg transition-shadow text-center group"
           >
             <div className="text-2xl sm:text-3xl mb-2 group-hover:scale-110 transition-transform">💊</div>
             <h4 className="font-bold text-gray-900 text-sm sm:text-base">Prescription Coverage</h4>

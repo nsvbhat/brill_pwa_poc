@@ -128,13 +128,13 @@ export default function HealthInfoPage() {
               </tbody>
             </table>
           </div>
-          <button className="w-full mt-4 text-[#00d4ff] hover:text-pink-700 font-medium text-xs sm:text-sm">
+          <button className="w-full mt-4 text-[#00d4ff] hover:text-blue-900 font-medium text-xs sm:text-sm">
             View All Claims →
           </button>
         </div>
 
         {/* Available Services */}
-        <div className="bg-pink-50 border border-pink-200 rounded-lg p-4 sm:p-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
           <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">🏥 Available Services</h3>
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <li className="flex items-center gap-2 text-xs sm:text-sm text-gray-900">

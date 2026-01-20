@@ -135,34 +135,34 @@ export default function DashboardPage() {
         )}
 
         {/* Coming Soon Features */}
-        <div className="bg-pink-50 border border-pink-200 rounded-lg p-4 sm:p-6 lg:p-8">
-          <h2 className="text-lg sm:text-xl font-semibold text-pink-700 mb-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 lg:p-8">
+          <h2 className="text-lg sm:text-xl font-semibold text-blue-900 mb-4">
             Available 24/7
           </h2>
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             <li className="flex items-center gap-2">
               <span className="text-green-600">✓</span>
-              <span className="text-xs sm:text-sm text-pink-700">View coverage details</span>
+              <span className="text-xs sm:text-sm text-blue-900">View coverage details</span>
             </li>
             <li className="flex items-center gap-2">
               <span className="text-green-600">✓</span>
-              <span className="text-xs sm:text-sm text-pink-700">Download ID cards</span>
+              <span className="text-xs sm:text-sm text-blue-900">Download ID cards</span>
             </li>
             <li className="flex items-center gap-2">
               <span className="text-green-600">✓</span>
-              <span className="text-xs sm:text-sm text-pink-700">Check claims status</span>
+              <span className="text-xs sm:text-sm text-blue-900">Check claims status</span>
             </li>
             <li className="flex items-center gap-2">
               <span className="text-green-600">✓</span>
-              <span className="text-xs sm:text-sm text-pink-700">Find doctors & facilities</span>
+              <span className="text-xs sm:text-sm text-blue-900">Find doctors & facilities</span>
             </li>
             <li className="flex items-center gap-2">
               <span className="text-green-600">✓</span>
-              <span className="text-xs sm:text-sm text-pink-700">Update personal info</span>
+              <span className="text-xs sm:text-sm text-blue-900">Update personal info</span>
             </li>
             <li className="flex items-center gap-2">
               <span className="text-green-600">✓</span>
-              <span className="text-xs sm:text-sm text-pink-700">Message support</span>
+              <span className="text-xs sm:text-sm text-blue-900">Message support</span>
             </li>
           </ul>
         </div>

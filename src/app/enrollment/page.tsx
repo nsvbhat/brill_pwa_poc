@@ -97,7 +97,7 @@ export default function EnrollmentPage() {
           Enrollment Questions
         </h1>
 
-        <div className="bg-pink-50 border border-pink-200 rounded-lg p-4 sm:p-6 mb-8">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 mb-8">
           <p className="text-sm sm:text-base text-pink-900">
             💡 <strong>Our licensed agents are here for you!</strong> Fill out these questions and connect with a specialist to find the perfect plan.
           </p>
@@ -217,7 +217,7 @@ export default function EnrollmentPage() {
               ))}
             </div>
 
-            <div className="bg-pink-50 border border-pink-200 rounded-lg p-4 sm:p-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
               <p className="text-xs sm:text-sm text-pink-900">
                 ✓ <strong>Licensed & Certified:</strong> All our agents are certified health insurance professionals
               </p>

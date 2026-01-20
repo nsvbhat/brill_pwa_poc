@@ -53,14 +53,14 @@ export async function GET() {
         url: '/services/wellness',
         isNew: true, // This is a newly added service
       },
-      // {
-      //   id: 'vaccine-scheduler',
-      //   name: 'Vaccine Scheduler',
-      //   description: 'Schedule and manage your vaccinations',
-      //   icon: '💉',
-      //   url: '/services/vaccine-scheduler',
-      //   isNew: true, // This is a newly added service
-      // }
+      {
+        id: 'vaccine-scheduler',
+        name: 'Vaccine Scheduler',
+        description: 'Schedule and manage your vaccinations',
+        icon: '💉',
+        url: '/services/vaccine-scheduler',
+        isNew: true, // This is a newly added service
+      }
     ],
     totalServices: 6,
     timestamp: new Date().toISOString(),

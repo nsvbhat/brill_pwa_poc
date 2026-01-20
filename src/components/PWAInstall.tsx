@@ -23,6 +23,15 @@ export default function PWAInstall() {
   useEffect(() => {
     console.log('📱 PWAInstall component mounted');
 
+    // Check if running on iOS (both Safari and native app WebView)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS) {
+      console.log('🍎 iOS detected - install prompt not needed (use native app or Safari share menu)');
+      setIsInstalled(true);
+      setIsLoading(false);
+      return;
+    }
+
     // Check if app is already installed (standalone mode, fullscreen, or TWA)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     const isFullscreen = window.matchMedia('(display-mode: fullscreen)').matches;
@@ -75,6 +84,8 @@ export default function PWAInstall() {
     };
   }, [deferredPrompt, isInstalled]);
 
+
+  
   const handleInstall = async () => {
     if (!deferredPrompt) {
       console.error('❌ Deferred prompt is null');

@@ -6,10 +6,22 @@ import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 // import { APP_VERSION } from '@/lib/version';
 
+interface DynamicService {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  url: string;
+  color: string;
+  isNew: boolean;
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState('');
   const [isMounted, setIsMounted] = useState(false);
+  const [dynamicServices, setDynamicServices] = useState<DynamicService[]>([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
 
   useEffect(() => {
     setIsMounted(true);
@@ -24,6 +36,18 @@ export default function DashboardPage() {
     }
 
     setUserEmail(email);
+
+    // Fetch dynamic services from server
+    fetch('/api/services/list')
+      .then((res) => res.json())
+      .then((data) => {
+        setDynamicServices(data.services || []);
+        setServicesLoading(false);
+      })
+      .catch((err) => {
+        console.error('Failed to load dynamic services:', err);
+        setServicesLoading(false);
+      });
   }, [router]);
 
   const handleLogout = () => {
@@ -49,120 +73,66 @@ export default function DashboardPage() {
           </h1>
         </div>
 
-        {/* Quick Actions Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
-          {/* View ID Card */}
-          <Link
-            href="/id-card"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-pink-600"
-          >
-            <div className="text-3xl sm:text-4xl mb-3">📇</div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
-              ID Card
-            </h3>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              View & download your card
-            </p>
-          </Link>
+        {/* Dynamic Services Grid */}
+        {servicesLoading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">Loading services...</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
+              {/* Render all services dynamically */}
+              {dynamicServices.map((service) => (
+                <Link
+                  key={service.id}
+                  href={service.url}
+                  className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4"
+                  style={{ borderTopColor: service.color }}
+                >
+                  <div className="text-3xl sm:text-4xl mb-3">{service.icon}</div>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                    {service.name}
+                    {service.isNew && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded ml-2">
+                        New
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-gray-600 text-xs sm:text-sm">
+                    {service.description}
+                  </p>
+                </Link>
+              ))}
 
-          {/* Find Care */}
-          <Link
-            href="/find-care"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-blue-600"
-          >
-            <div className="text-3xl sm:text-4xl mb-3">🏥</div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
-              Find Care
-            </h3>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Search doctors & facilities
-            </p>
-          </Link>
+              {/* Sign Out Button - Always Last */}
+              <button
+                onClick={handleLogout}
+                className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-gray-600 hover:bg-gray-50"
+              >
+                <div className="text-3xl sm:text-4xl mb-3">🚪</div>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                  Sign Out
+                </h3>
+                <p className="text-gray-600 text-xs sm:text-sm">
+                  Securely logout
+                </p>
+              </button>
+            </div>
 
-          {/* View Health Info */}
-          <Link
-            href="/health-info"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-green-600"
-          >
-            <div className="text-3xl sm:text-4xl mb-3">📋</div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
-              Health Information
-            </h3>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Access your health records
-            </p>
-          </Link>
-
-          {/* Check Prescription */}
-          <Link
-            href="/prescriptions"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-purple-600"
-          >
-            <div className="text-3xl sm:text-4xl mb-3">💊</div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
-              Prescriptions
-            </h3>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Check coverage & refill
-            </p>
-          </Link>
-
-          {/* Pay Premium */}
-          <Link
-            href="/payments"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-orange-600"
-          >
-            <div className="text-3xl sm:text-4xl mb-3">💳</div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
-              Pay Premium
-            </h3>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Manage monthly payments
-            </p>
-          </Link>
-
-          {/* Enrollment */}
-          <Link
-            href="/enrollment"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-yellow-600"
-          >
-            <div className="text-3xl sm:text-4xl mb-3">📝</div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
-              Enrollment
-            </h3>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Talk to licensed agents
-            </p>
-          </Link>
-
-          {/* Support/FAQ */}
-          <Link
-            href="/support"
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-red-600"
-          >
-            <div className="text-3xl sm:text-4xl mb-3">❓</div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
-              Support
-            </h3>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              FAQs & contact us
-            </p>
-          </Link>
-
-          {/* Logout */}
-          <button
-            onClick={handleLogout}
-            className="bg-white p-4 sm:p-6 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer border-t-4 border-gray-600 hover:bg-gray-50"
-          >
-            <div className="text-3xl sm:text-4xl mb-3">🚪</div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
-              Sign Out
-            </h3>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Securely logout
-            </p>
-          </button>
-        </div>
+            {/* Dynamic Services Info */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6 lg:p-8 mb-8 sm:mb-12">
+              <h2 className="text-lg sm:text-xl font-semibold text-blue-900 mb-3">
+                ✨ All Services Are Dynamic
+              </h2>
+              <p className="text-blue-800 text-xs sm:text-sm mb-3">
+                Every service displayed here is fetched from the server. Add, update, or remove services without redeploying the app!
+              </p>
+              <p className="text-blue-700 text-xs sm:text-sm">
+                <strong>{dynamicServices.length}</strong> service(s) currently available. {dynamicServices.filter(s => s.isNew).length} new this release.
+              </p>
+            </div>
+          </>
+        )}
 
         {/* Coming Soon Features */}
         <div className="bg-pink-50 border border-pink-200 rounded-lg p-4 sm:p-6 lg:p-8">

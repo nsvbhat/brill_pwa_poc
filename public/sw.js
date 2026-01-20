@@ -1,144 +1,167 @@
-// Service Worker with Version Control and Cache Busting
-// UPDATE THIS VERSION STRING TO TRIGGER CACHE BUST ON NEW DEPLOYMENTS
-import { APP_VERSION } from '@/lib/version';
+// Service Worker for Ambetter PWA
+const CACHE_VERSION = 'ambetter-v1.0.0';
+const STATIC_ASSETS = [
+  '/',
+  '/manifest.json',
+  '/offline.html',
+  '/ambetter-logo.png',
+  '/favicon.ico',
+];
 
-const CACHE_VERSION = APP_VERSION;
-
-self.addEventListener('install', () => {
-  console.log('✅ SW installing - version:', CACHE_VERSION);
+// Install event - cache static assets
+self.addEventListener('install', (event) => {
+  console.log('[SW] Installing service worker...');
+  
+  event.waitUntil(
+    caches.open(CACHE_VERSION).then((cache) => {
+      console.log('[SW] Caching static assets');
+      return Promise.allSettled(
+        STATIC_ASSETS.map((url) =>
+          fetch(url)
+            .then((response) => {
+              if (response.ok) {
+                return cache.put(url, response);
+              }
+            })
+            .catch(() => {
+              console.log('[SW] Could not cache', url);
+            })
+        )
+      );
+    })
+  );
+  
   self.skipWaiting();
 });
 
+// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('✅ SW activated - version:', CACHE_VERSION);
+  console.log('[SW] Activating service worker...');
   
-  // CRITICAL: Use event.waitUntil() to ensure old caches are deleted
-  // before the Service Worker starts handling requests
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
-          // Only keep the cache that matches current version
-          if (cacheName !== CACHE_VERSION) {
-            console.log('🗑️ Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
+        cacheNames
+          .filter((name) => name !== CACHE_VERSION)
+          .map((name) => {
+            console.log('[SW] Deleting old cache:', name);
+            return caches.delete(name);
+          })
       );
-    }).then(() => {
-      console.log('✅ Cache cleanup complete');
-      return self.clients.claim();
     })
   );
+  
+  self.clients.claim();
 });
 
+// Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
-  // Network first strategy with cache fallback
-  if (event.request.method !== 'GET') return;
-  
-  // For HTML files, always check network first (no cache)
-  if (event.request.mode === 'navigate' || event.request.url.includes('.html')) {
-    event.respondWith(
-      fetch(event.request).catch(() => {
-        // Fallback if offline - serve from cache
-        return caches.open(CACHE_VERSION).then((cache) => {
-          return cache.match(event.request);
-        });
-      })
-    );
+  const { request } = event;
+  const url = new URL(request.url);
+
+  if (request.method !== 'GET') {
     return;
   }
-  
-  // For other requests, network only
-  event.respondWith(fetch(event.request));
+
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request).then((response) => {
+      if (response) {
+        console.log('[SW] Serving from cache:', url.pathname);
+        return response;
+      }
+
+      return fetch(request)
+        .then((networkResponse) => {
+          if (!networkResponse || networkResponse.status !== 200) {
+            return networkResponse;
+          }
+
+          const responseToCache = networkResponse.clone();
+          
+          if (
+            url.pathname === '/' ||
+            url.pathname.endsWith('.html') ||
+            url.pathname.startsWith('/api/')
+          ) {
+            caches.open(CACHE_VERSION).then((cache) => {
+              cache.put(request, responseToCache);
+            });
+          }
+
+          return networkResponse;
+        })
+        .catch(() => {
+          console.log('[SW] Network failed for:', url.pathname);
+          
+          if (request.headers.get('accept')?.includes('text/html')) {
+            return caches.match('/offline.html').then((offlineResponse) => {
+              return (
+                offlineResponse ||
+                new Response('You are offline', {
+                  status: 503,
+                  statusText: 'Service Unavailable',
+                  headers: new Headers({
+                    'Content-Type': 'text/plain',
+                  }),
+                })
+              );
+            });
+          }
+          
+          return new Response('Network request failed', {
+            status: 408,
+            statusText: 'Request Timeout',
+          });
+        });
+    })
+  );
 });
 
-// Periodic Sync - Background update checks (at regular intervals)
-self.addEventListener('periodicsync', (event) => {
-  console.log('🔄 Periodic Sync triggered:', event.tag);
+// Background sync event
+self.addEventListener('sync', (event) => {
+  console.log('[SW] Background sync event:', event.tag);
   
-  // Check for correct tag on the periodicsync event
-  if (event.tag === 'update-check') {
-    // Execute the desired behavior with waitUntil()
+  if (event.tag === 'sync-health-data') {
     event.waitUntil(
-      fetch('/').then((response) => {
-        console.log('✅ Periodic sync: App state checked');
-        return response;
+      self.clients
+        .matchAll()
+        .then((clients) => {
+          clients.forEach((client) => {
+            client.postMessage({
+              type: 'SYNC_DATA',
+            });
+          });
+        })
+    );
+  }
+});
+
+// Periodic sync event
+self.addEventListener('periodicsync', (event) => {
+  console.log('[SW] Periodic sync event:', event.tag);
+  
+  if (event.tag === 'update-check') {
+    event.waitUntil(
+      fetch('/').then(() => {
+        console.log('[SW] Periodic update check complete');
       }).catch((err) => {
-        console.log('❌ Periodic sync failed:', err);
-        throw err; // Retry later if failed
+        console.error('[SW] Periodic update check failed:', err);
       })
     );
   }
 });
 
-// Background Sync - Retry failed requests when connection restored
-self.addEventListener('sync', (event) => {
-  console.log('🔄 Background Sync triggered:', event.tag);
+// Message event
+self.addEventListener('message', (event) => {
+  console.log('[SW] Message received:', event.data);
   
-  // Check for correct tag on the sync event
-  if (event.tag === 'sync-health-data') {
-    // Execute the desired behavior with waitUntil()
-    event.waitUntil(
-      fetch('/', { method: 'POST', body: JSON.stringify({ action: 'sync' }) })
-        .then((response) => {
-          console.log('✅ Background sync: Data synced successfully');
-          return response;
-        })
-        .catch((err) => {
-          console.log('❌ Background sync failed:', err);
-          throw err; // Retry later if failed
-        })
-    );
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
   }
 });
 
-// Push Notifications - Handle incoming push events
-self.addEventListener('push', (event) => {
-  console.log('📢 Push notification received');
-  
-  let notificationData = {
-    title: 'Ambetter Health',
-    body: 'You have a new notification',
-    icon: '/ambetter-logo-192.png',
-    badge: '/ambetter-logo-192.png'
-  };
-  
-  // Try to parse JSON from push event
-  try {
-    if (event.data) {
-      notificationData = { ...notificationData, ...event.data.json() };
-    }
-  } catch (e) {
-    console.log('⚠️ Failed to parse push data:', e);
-  }
-  
-  event.waitUntil(
-    self.registration.showNotification(notificationData.title, {
-      body: notificationData.body,
-      icon: notificationData.icon,
-      badge: notificationData.badge,
-      tag: notificationData.tag || 'ambetter-notification'
-    })
-  );
-});
-
-// Handle notification clicks
-self.addEventListener('notificationclick', (event) => {
-  console.log('👆 Notification clicked:', event.notification.tag);
-  event.notification.close();
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // Check if app is already open
-      for (const client of clientList) {
-        if (client.url === '/' && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      // Otherwise open new window
-      if (clients.openWindow) {
-        return clients.openWindow('/');
-      }
-    })
-  );
-});
+console.log('[SW] Service worker script loaded');

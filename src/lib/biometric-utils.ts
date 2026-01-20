@@ -121,7 +121,8 @@ export async function registerBiometric(userId: string, userName: string): Promi
  */
 export async function authenticateWithBiometric(userId: string): Promise<boolean> {
   try {
-    if (!hasBiometricCredentials(userId)) {
+    const credentialInfo = getBiometricInfo(userId);
+    if (!credentialInfo) {
       console.log('⚠️ No biometric credentials registered. Please register first.');
       return false;
     }
@@ -136,23 +137,27 @@ export async function authenticateWithBiometric(userId: string): Promise<boolean
         userVerification: 'preferred',
         rpId: window.location.hostname,
       },
-      mediation: 'conditional', // Show native biometric UI
+      mediation: 'optional',
     };
 
+    console.log('📱 Requesting biometric authentication...');
     const assertion = (await navigator.credentials.get(
       credentialRequestOptions
     )) as PublicKeyCredential | null;
 
     if (assertion) {
       console.log('✅ Biometric authentication successful');
+      console.log('🆔 Authenticated with credential ID:', assertion.id);
       return true;
     }
     
-    console.log('⚠️ Biometric authentication failed');
+    console.log('⚠️ Biometric authentication failed - no assertion returned');
     return false;
   } catch (error) {
     if ((error as Error).name === 'NotAllowedError') {
       console.log('⚠️ Biometric authentication cancelled by user');
+    } else if ((error as Error).name === 'InvalidStateError') {
+      console.log('⚠️ Biometric credential not found or invalid');
     } else {
       console.error('❌ Biometric authentication error:', error);
     }

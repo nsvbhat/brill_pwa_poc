@@ -7,7 +7,7 @@ import PWAInit from "@/components/PWAInit";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Brillio Health - PWA Demo",
+  title: "Brillio Health - Mobile Chassis Demoo",
   description: "Progressive Web App showcasing dynamic content updates without marketplace redeployment",
   manifest: "/manifest.json",
   appleWebApp: {

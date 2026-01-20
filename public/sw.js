@@ -4,7 +4,7 @@ const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/offline.html',
-  '/ambetter-logo.png',
+  '/ambetter-logo-new.png',
   '/favicon.ico',
 ];
 

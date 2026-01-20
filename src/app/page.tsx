@@ -31,7 +31,7 @@ export default function HomePage() {
           <div className="inline-block mb-4 sm:mb-6">
             <div className="bg-white rounded-lg p-3">
               <img 
-                src="/ambetter-logo.png" // Scenario 1: Change logo URL dynamically from server
+                src="/ambetter-logo-new.png" // Scenario 1: Change logo URL dynamically from server
                 alt="Ambetter Health" 
                 className="h-20 w-auto"
               />

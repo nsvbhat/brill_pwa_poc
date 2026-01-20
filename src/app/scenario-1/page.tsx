@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Navigation from '@/components/Navigation';
 
 export default function Scenario1() {
-  const [logoUrl, setLogoUrl] = useState('/ambetter-logo.png');
+  const [logoUrl, setLogoUrl] = useState('/ambetter-logo-new.png');
   const [loading, setLoading] = useState(true);
   const [showCode, setShowCode] = useState(false);
 
@@ -110,7 +110,7 @@ LOGO_URL=/your-new-logo.png
 
 export async function GET() {
   return NextResponse.json({
-    url: process.env.LOGO_URL || '/ambetter-logo.png',
+    url: process.env.LOGO_URL || '/ambetter-logo-new.png',
     lastUpdated: new Date().toISOString(),
   });
 }`}
